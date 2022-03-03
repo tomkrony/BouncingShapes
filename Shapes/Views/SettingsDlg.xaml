@@ -1,0 +1,81 @@
+﻿<Window x:Class="Shapes.Views.SettingsDlg"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Shapes.Views"
+        xmlns:viewModels="clr-namespace:Shapes.ViewModels"
+        xmlns:validators="clr-namespace:Shapes.ValidationRules"
+        xmlns:converters="clr-namespace:Shapes.Converters"
+        xmlns:controls="clr-namespace:Shapes.Controls"
+        xmlns:behaviors="clr-namespace:Shapes.Behaviors"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        Title="Settings" Height="200" Width="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0"
+                    Orientation="Vertical" Grid.IsSharedSizeScope="True"
+                    Margin="5"
+                    behaviors:VMErrorValidation.CheckValidity="True"
+                    behaviors:VMErrorValidation.HasErrors="{Binding HasValidationErrors, Mode=OneWayToSource}">
+            <StackPanel.Resources>
+                <converters:TimeSpanToDoubleConverter x:Key="TimeSpanConv" />
+                <Style TargetType="TextBox">
+                    <Style.Triggers>
+                        <Trigger Property="Validation.HasError"
+                                 Value="True">
+                            <Setter Property="ToolTip"
+                                    Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)[0].ErrorContent}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </StackPanel.Resources>
+            <controls:LabeledItemView Label="Enter Size of Shape(Px)">
+                <TextBox>
+                    <TextBox.Text>
+                        <Binding Path="ShapeSize" NotifyOnValidationError="True"
+                                 UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validators:NumberValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </controls:LabeledItemView>
+            <controls:LabeledItemView Label="Enter Speed of movement (Px/Sec)" Margin="0 2 0 0">
+                <TextBox>
+                    <TextBox.Text>
+                        <Binding Path="MovementSpeed"
+                                 NotifyOnValidationError="True"
+                                 Converter="{StaticResource TimeSpanConv}"
+                                 UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <validators:NumberValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+            </controls:LabeledItemView>
+        </StackPanel>
+        <Grid Grid.Row="1"
+              Height="40"
+              Background="WhiteSmoke">
+            <Grid.Resources>
+                <Style TargetType="Button">
+                    <EventSetter Event="Click" Handler="Button_Click"/>
+                    <Setter Property="MinWidth" Value="100"/>
+                </Style>
+            </Grid.Resources>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                        Margin="5">
+                <Button Content="Ok" Command="{Binding CmdClick}" CommandParameter="{x:Static viewModels:ReturnCode.Ok}"/>
+                <Button Content="Cancel" Command="{Binding CmdClick}" CommandParameter="{x:Static viewModels:ReturnCode.Cancel}"
+                        Margin="5 0 0 0"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
